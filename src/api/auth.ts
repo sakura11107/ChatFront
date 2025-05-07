@@ -1,13 +1,14 @@
 import {post} from './axios.ts'
 
-// export const login = (data:any) => {
-//     return post('/login',data)
-// }
-interface RegisterResponse{
+interface Response{
     code: number;
     message: string;
     data: string;
 }
-export const register = (data:any):Promise<RegisterResponse> => {
+
+export const login = (data:any):Promise<Response> => {
+    return post('/api/auth/login',data)
+}
+export const register = (data:any):Promise<Response> => {
     return post('/api/auth/register',data)
 }

@@ -143,15 +143,15 @@ const submitForm = async () => {
 // 返回首页
 const gotoHome = () => {
   ElMessage.info('跳转到首页');
-  // 示例：跳转到首页
-  // window.location.href = '/';
+
+  router.push('/');
 };
 
 // 跳转到登录页面
 const goToLogin = () => {
   ElMessage.info('跳转到登录页面');
-  // 示例：跳转到登录页面
-  // window.location.href = '/login';
+
+  router.push('/login');
 };
 </script>
 
