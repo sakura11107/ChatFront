@@ -3,7 +3,7 @@ import type {AxiosInstance ,AxiosRequestConfig,AxiosResponse,InternalAxiosReques
 
 const axiosInstance: AxiosInstance = axios.create({
     baseURL: "http://localhost:8080/",
-    timeout: 3600,
+    timeout: 10000,
     headers: {
         "Content-Type": "application/json",
     },

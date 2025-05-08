@@ -1,49 +1,51 @@
 <template>
-  <el-card class="register-card">
-    <el-form
-        ref="registerForm"
-        :model="formData"
-        :rules="rules"
-        label-width="120px"
-        class="register-form"
-    >
-      <el-form-item label="用户名" prop="username">
-        <el-input
-            v-model="formData.username"
-            placeholder="请输入用户名"
-            clearable
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="密码" prop="password">
-        <el-input
-            v-model="formData.password"
-            placeholder="请输入密码"
-            type="password"
-            show-password
-            clearable
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="确认密码" prop="password2">
-        <el-input
-            v-model="formData.password2"
-            placeholder="请再次输入密码"
-            type="password"
-            show-password
-            clearable
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="邮箱" prop="email">
-        <el-input
-            v-model="formData.email"
-            placeholder="请输入邮箱"
-            clearable
-        ></el-input>
-      </el-form-item>
-      <el-button type="primary" @click="gotoHome">返回首页</el-button>
-      <el-button type="primary" @click="goToLogin">已有账号？去登陆</el-button>
-      <el-button type="primary" @click="submitForm">注册</el-button>
-    </el-form>
-  </el-card>
+  <div class="register-container">
+    <el-card class="register-card">
+      <el-form
+          ref="registerForm"
+          :model="formData"
+          :rules="rules"
+          label-width="120px"
+          class="register-form"
+      >
+        <el-form-item label="用户名" prop="username">
+          <el-input
+              v-model="formData.username"
+              placeholder="请输入用户名"
+              clearable
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input
+              v-model="formData.password"
+              placeholder="请输入密码"
+              type="password"
+              show-password
+              clearable
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码" prop="password2">
+          <el-input
+              v-model="formData.password2"
+              placeholder="请再次输入密码"
+              type="password"
+              show-password
+              clearable
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input
+              v-model="formData.email"
+              placeholder="请输入邮箱"
+              clearable
+          ></el-input>
+        </el-form-item>
+        <el-button type="primary" @click="goToLogin">已有账号？去登陆</el-button>
+        <el-button type="primary" @click="gotoHome">返回首页</el-button>
+        <el-button type="primary" @click="submitForm">注册</el-button>
+      </el-form>
+    </el-card>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -142,30 +144,34 @@ const submitForm = async () => {
 
 // 返回首页
 const gotoHome = () => {
-  ElMessage.info('跳转到首页');
-
   router.push('/');
 };
 
 // 跳转到登录页面
 const goToLogin = () => {
-  ElMessage.info('跳转到登录页面');
-
   router.push('/login');
 };
 </script>
 
 <style scoped>
+.register-container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .register-card {
-  width: 400px;
+  width: 100%;
+  height: 100%;
+  max-width: 500px;
   margin: 50px auto;
   padding: 20px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
-.register-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+@media (max-width: 768px) {
+  .register-card {
+    margin: 20px;
+  }
 }
 </style>

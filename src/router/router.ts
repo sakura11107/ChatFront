@@ -6,6 +6,7 @@ import Chat from "../components/Chat.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import Test from "../views/Test.vue";
+import ChatMap from "../views/ChatMap.vue";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -29,6 +30,11 @@ const router = createRouter({
             path:'/chat',
             component: Chat,
             name: '聊天室'
+        },
+        {
+            path:'/chatMap',
+            component: ChatMap,
+            name: '地图聊天室'
         },
         {
             path:'/test',
