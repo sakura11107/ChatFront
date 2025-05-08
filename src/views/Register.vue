@@ -128,7 +128,7 @@ const submitForm = async () => {
           // 延迟跳转到登录页面
           setTimeout(() => {
             router.push('/login');
-          }, 2000);
+          }, 1000);
         } else {
           ElMessage.error(response.message || '注册失败');
         }

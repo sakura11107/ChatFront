@@ -26,11 +26,32 @@
 
 <script setup lang="ts">
 import router from "../router/router.ts";
+import {useAuthStore} from "../store/auth.ts";
+import {computed} from "vue";
+import {ElMessage} from "element-plus";
 
-const buttons = [
-  { type: 'primary', text: '登陆',action: () => {router.push("/login")} },
-  { type: 'primary', text: '注册',action: () => {router.push("/register")} },
-];
+const authStore = useAuthStore();
+
+// 动态生成按钮
+const buttons = computed(() => {
+  if (authStore.isLoggedIn) {
+    return [
+      {
+        type: 'primary',
+        text: '退出',
+        action: () => {
+          authStore.logout();
+          ElMessage.success('已退出登录');
+          router.push('/');
+        },
+      },
+    ];
+  }
+  return [
+    { type: 'primary', text: '登陆', action: () => router.push('/login') },
+    { type: 'primary', text: '注册', action: () => router.push('/register') },
+  ];
+});
 </script>
 
 <style scoped>

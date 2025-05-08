@@ -52,7 +52,7 @@ const formData = reactive<FormData>({
 });
 
 const loginForm = ref<FormInstance|null>(null);
-const authStore = useAuthStore;
+const authStore = useAuthStore();
 
 const rules: FormRules = {
   username: [
@@ -69,14 +69,11 @@ const submitForm = async () => {
   loginForm.value?.validate(async (valid) => {
     if (valid) {
       try{
-
         const requestData = {
           username: formData.username,
           password: formData.password,
         };
-
         const response = await login(requestData);
-
         if (response.code === 200) {
           authStore.login(response.token);
           ElNotification({
@@ -87,7 +84,7 @@ const submitForm = async () => {
           // 延迟跳转到首页
           setTimeout(() => {
             router.push('/chatMap');
-          }, 2000);
+          }, 1000);
         } else {
           ElMessage.error(response.message || '登录失败');
         }

@@ -3,7 +3,8 @@ import {post} from './axios.ts'
 interface Response{
     code: number;
     message: string;
-    data: string;
+    data: any;
+    token: string;
 }
 
 export const login = (data:any):Promise<Response> => {
