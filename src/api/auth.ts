@@ -5,6 +5,7 @@ interface Response{
     message: string;
     data: any;
     token: string;
+    username: string;
 }
 
 export const login = (data:any):Promise<Response> => {

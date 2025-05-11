@@ -75,7 +75,7 @@ const submitForm = async () => {
         };
         const response = await login(requestData);
         if (response.code === 200) {
-          authStore.login(response.token);
+          authStore.login(response.token, response.username);
           ElNotification({
             title: '登录成功',
             message: '欢迎回来！即将跳转到地图聊天室',
