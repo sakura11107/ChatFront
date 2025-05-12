@@ -1,9 +1,9 @@
 <template>
-  <el-container style="min-height: 100vh;">
-    <el-header style="height: 60px;">
+  <el-container>
+    <el-header>
       <Navbar></Navbar>
     </el-header>
-    <el-main style="flex: 1; padding-top: 60px; overflow: hidden;">
+    <el-main>
       <router-view></router-view>
     </el-main>
   </el-container>

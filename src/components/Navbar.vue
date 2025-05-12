@@ -6,7 +6,7 @@
           <img src="../assets/dalaoshi.png" alt="Logo" />
         </div>
       </el-col>
-      <!-- 右侧按钮区域 -->
+
       <el-col :span="6" class="right-section">
         <div class="function">
           <el-button
@@ -64,7 +64,6 @@ const buttons = computed(() => {
 }
 
 .navbar {
-  display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;

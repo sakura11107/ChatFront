@@ -1,26 +1,32 @@
 <template>
-  <div class="map-container">
-    <el-dialog v-model="dialogVisible" title="请选择地区">
-      <my-select
-          v-model="selectedProvince"
-          :options="provinceOptions"
-          placeholder="请点击选择"
-          @change="handleProvinceChange"
-      ></my-select>
-    </el-dialog>
+  <div class="container">
+    <my-dialog-select
+        v-model="selectedProvince"
+        :options="provinceOptions"
+        :visible="dialogVisible"
+        @update:visible="dialogVisible = $event"
+        @change="handleProvinceChange"
+        dialog-title="选择您的地区"
+    ></my-dialog-select>
     <div class="map-section">
-      <div id="map" :style="{ width: mapWidth, height: mapHeight }"></div>
       <div class="region-info">
         <el-text type="primary">
           您当前所选择的地区为：<el-text type="success">{{ selectedProvince || '未选择' }}</el-text>
         </el-text>
       </div>
+      <div id="map"></div>
     </div>
     <div class="chat-section">
       <h3>{{ selectedProvince || '未选择地区' }} 聊天室</h3>
       <div class="message-list">
-        <div v-for="(message, index) in messages" :key="index" class="message">
-          <strong>{{ message.sender }}:</strong> {{ message.content }}
+        <div
+            v-for="(message, index) in messages"
+            :key="index"
+            class="message"
+            :class="{ 'message-self': message.sender === username }"
+        >
+          <div class="message-sender">{{ message.sender }}</div>
+          <div class="message-content">{{ message.content }}</div>
         </div>
       </div>
       <div class="input-area">
@@ -29,8 +35,9 @@
             placeholder="输入消息..."
             @keyup.enter="sendMessage"
             clearable
+            class="custom-input"
         ></el-input>
-        <el-button type="primary" @click="sendMessage">发送</el-button>
+        <el-button type="primary" @click="sendMessage" class="custom-button">发送</el-button>
       </div>
     </div>
   </div>
@@ -43,42 +50,34 @@ import axios from 'axios';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { ElMessage } from 'element-plus';
-import MySelect from '../components/MySelect.vue';
+import MyDialogSelect from "../components/MyDialogSelect.vue";
 import {useAuthStore} from "../store/auth.ts";
 
-// 定义下拉选项接口
 interface Option {
   value: any;
   label: string;
   [key: string]: any;
 }
 
-// Pinia 状态管理
 const authStore = useAuthStore();
 const username = computed(() => authStore.username || '匿名用户');
 
-// 地图和地区选择
-const mapWidth = ref('100%');
-const mapHeight = ref('calc(100% - 40px)');
 const dialogVisible = ref(false);
 const selectedProvince = ref<string | undefined>(localStorage.getItem('address') || undefined);
 const provinceOptions = ref<Option[]>([]);
 
-// 聊天室状态
 const messageContent = ref('');
 const messages = ref<{ sender: string; content: string; region: string }[]>([]);
 let stompClient: Client | null = null;
 
-// 处理省市选择
 const handleProvinceChange = (value: string) => {
   localStorage.setItem('address', value);
-  dialogVisible.value = false;
-  messages.value = []; // 清空消息列表
+  messages.value = [];
   highlightProvince(value);
   connectWebSocket();
 };
 
-// 高亮省市
+
 const highlightProvince = (province: string) => {
   if (mapChart) {
     mapChart.setOption({
@@ -96,7 +95,7 @@ const highlightProvince = (province: string) => {
   }
 };
 
-// WebSocket 连接
+
 const connectWebSocket = () => {
   if (!authStore.isLoggedIn) {
     console.log('用户未登录，跳过 WebSocket 连接');
@@ -108,7 +107,6 @@ const connectWebSocket = () => {
     return;
   }
 
-  // 断开现有连接
   if (stompClient) {
     stompClient.deactivate();
   }
@@ -132,7 +130,7 @@ const connectWebSocket = () => {
   stompClient.activate();
 };
 
-// 发送消息
+
 const sendMessage = () => {
   if (!messageContent.value.trim()) {
     ElMessage.warning('消息不能为空');
@@ -160,10 +158,10 @@ const sendMessage = () => {
   messageContent.value = '';
 };
 
-// 地图实例
+
 let mapChart: echarts.ECharts | null = null;
 
-// 获取地图数据
+
 const getChinaMapData = async () => {
   try {
     const response = await axios.get('https://geojson.cn/api/china/1.6.2/china.json');
@@ -183,7 +181,7 @@ const getChinaMapData = async () => {
   }
 };
 
-// 初始化地图
+
 const initMap = () => {
   nextTick(() => {
     mapChart = echarts.init(document.getElementById('map')!);
@@ -223,34 +221,33 @@ const initMap = () => {
   });
 };
 
-// 监听窗口大小变化
+
 const handleResize = () => {
   if (mapChart) {
     mapChart.resize();
-    mapHeight.value = 'calc(100% - 40px)';
   }
 };
 
-// 监听登录状态变化
+
 watch(
     () => authStore.isLoggedIn,
     (isLoggedIn) => {
       if (isLoggedIn && selectedProvince.value) {
         console.log('用户已登录，连接 WebSocket');
-        connectWebSocket();
+        nextTick(() => connectWebSocket()); // 确保 DOM 更新后连接
       } else {
-        console.log('用户已登出，断开 WebSocket');
+        console.log('用户已登出或未选择地区，断开 WebSocket');
         if (stompClient) {
           stompClient.deactivate();
           stompClient = null;
         }
         messages.value = []; // 清空消息列表
       }
-    }
+    },
+    { immediate: true } // 立即触发以检查初始状态
 );
 
 onMounted(() => {
-  mapHeight.value = 'calc(100% - 40px)';
   getChinaMapData();
   dialogVisible.value = localStorage.getItem('address') === null;
   connectWebSocket();
@@ -266,71 +263,103 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.map-container {
+.container {
   display: flex;
   flex-direction: row;
-  width: 100%;
-  height: calc(100vh - 60px); /* 减去导航栏高度 */
-  margin: 0;
-  padding: 20px;
-  box-sizing: border-box;
-  gap: 20px;
+  width: 1200px;
+  height: 800px;
+  overflow: hidden;
 }
 
 .map-section {
   display: flex;
   flex-direction: column;
-  width: 60%;
+  width: 50%;
   height: 100%;
-  gap: 10px;
-}
-
-#map {
-  flex: 1;
-  width: 100%;
-  border: 1px solid #e8e8e8;
-}
-
-.region-info {
-  height: 40px;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
+  #map {
+    flex: 1;
+  }
 }
 
 .chat-section {
+  width: 50%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  width: 40%;
-  height: 100%;
   border: 1px solid #e8e8e8;
   padding: 10px;
   box-sizing: border-box;
   gap: 10px;
-}
+  .chat-section h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #303133;
+    font-weight: 500;
+  }
 
-.chat-section h3 {
-  margin: 0 0 10px 0;
-}
+  /* 消息列表 */
+  .message-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+  }
 
-.message-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border: 1px solid #e8e8e8;
-}
+  .message {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    align-items: flex-start;
+  }
 
-.message {
-  margin-bottom: 10px;
-}
+  .message-self {
+    align-items: flex-end;
+  }
 
-.input-area {
-  display: flex;
-  gap: 10px;
-}
+  .message-sender {
+    font-size: 12px;
+    color: #909399;
+    margin-bottom: 4px;
+  }
 
-.input-area .el-input {
-  flex: 1;
+  .message-content {
+    max-width: 70%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: #e6f7ff;
+    color: #303133;
+    word-break: break-word;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .message-self .message-content {
+    background: #409eff;
+    color: #fff;
+    border-radius: 12px 12px 0 12px;
+  }
+
+  .input-area {
+    display: flex;
+    gap: 10px;
+    background: #f8f9fc;
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+
+  .input-area .custom-button {
+    border-radius: 8px;
+    padding: 8px 20px;
+    background: linear-gradient(90deg, #409eff, #79bbff);
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  .input-area .custom-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 }
 </style>
